@@ -140,9 +140,17 @@ func main() {
 		parent = u.Path[0:idx]
 	}
 	path := filepath.Join(u.Host, parent)
+	parts := strings.Split(u.Path, "/")
+	target := filepath.Join(append([]string{u.Host}, parts...)...)
+	idx = strings.LastIndex(target, ".")
+	if idx > 0 {
+		target = target[0:idx]
+	}
 	cmd := exec.Command("/bin/bash")
-	cmd.Stdin = bytes.NewReader([]byte("ls " + path))
-	cmd.Stdin = bytes.NewReader([]byte(`pwd`))
+	cmd.Stdin = bytes.NewReader([]byte(fmt.Sprintf(`
+mkdir %s
+git clone %s %s
+`, path, source, target)))
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
