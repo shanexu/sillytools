@@ -148,7 +148,7 @@ func main() {
 	}
 	cmd := exec.Command("/bin/bash")
 	cmd.Stdin = bytes.NewReader([]byte(fmt.Sprintf(`
-mkdir %s
+mkdir -p %s
 git clone %s %s
 `, path, source, target)))
 	cmd.Stdout = os.Stdout
