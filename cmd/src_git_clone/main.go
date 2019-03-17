@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytes"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -124,9 +124,28 @@ func (t *TransportSet) Valid(transport string) bool {
 	return ok
 }
 
+func findSrc() (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	for dir != "/" {
+		name := filepath.Base(dir)
+		if name == "src" {
+			return dir, nil
+		}
+		dir = filepath.Dir(dir)
+	}
+	return "", errors.New("not found src")
+}
+
 func main() {
+	src, err := findSrc()
+	if err != nil {
+		panic(err)
+	}
 	if len(os.Args) <= 1 {
-		fmt.Fprintln(os.Stderr, "src_git_clone url")
+		_, _ = fmt.Fprintln(os.Stderr, "src_git_clone url")
 		os.Exit(1)
 	}
 	source := os.Args[1]
@@ -139,19 +158,25 @@ func main() {
 	if idx > 0 {
 		parent = u.Path[0:idx]
 	}
-	path := filepath.Join(u.Host, parent)
+	parents := append([]string{src, u.Host}, strings.Split(parent, "/")...)
+	path := filepath.Join(parents...)
+	if _, err := os.Stat(path); err == os.ErrNotExist {
+		err = os.MkdirAll(path, 0755)
+		if err != nil {
+			panic(err)
+		}
+	}
 	parts := strings.Split(u.Path, "/")
 	target := filepath.Join(append([]string{u.Host}, parts...)...)
 	idx = strings.LastIndex(target, ".")
 	if idx > 0 {
 		target = target[0:idx]
 	}
-	cmd := exec.Command("/bin/bash")
-	cmd.Stdin = bytes.NewReader([]byte(fmt.Sprintf(`
-mkdir -p %s
-git clone %s %s
-`, path, source, target)))
+	cmd := exec.Command("git", "clone", source)
+	cmd.Dir = path
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Run()
+	if err := cmd.Run(); err != nil {
+		panic(err)
+	}
 }
