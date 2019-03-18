@@ -160,7 +160,7 @@ func main() {
 	}
 	parents := append([]string{src, u.Host}, strings.Split(parent, "/")...)
 	path := filepath.Join(parents...)
-	if _, err := os.Stat(path); err == os.ErrNotExist {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
 		err = os.MkdirAll(path, 0755)
 		if err != nil {
 			panic(err)
