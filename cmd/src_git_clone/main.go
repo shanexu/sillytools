@@ -3,9 +3,11 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/shanexu/sillytools/common"
 	"net/url"
 	"os"
 	"os/exec"
+	"os/user"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -124,7 +126,9 @@ func (t *TransportSet) Valid(transport string) bool {
 	return ok
 }
 
-func findSrc() (string, error) {
+var ErrSrcNotFound = errors.New("src not found")
+
+func findAncestorSrc() (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
 		return "", err
@@ -136,8 +140,26 @@ func findSrc() (string, error) {
 		}
 		dir = filepath.Dir(dir)
 	}
-	return "", errors.New("not found src")
+	return "", ErrSrcNotFound
 }
+
+func findEnvSrc() (string, error) {
+	srcRoot := os.Getenv("SRC_ROOT")
+	if srcRoot == "" {
+		return "", ErrSrcNotFound
+	}
+	return srcRoot, nil
+}
+
+func findDefaultSrc() (string, error) {
+	u, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(u.HomeDir, "src"), nil
+}
+
+var findSrc = common.Alternatives(findAncestorSrc, findEnvSrc, findDefaultSrc)
 
 func main() {
 	src, err := findSrc()
