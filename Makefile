@@ -1,6 +1,6 @@
 all:
 	for cmd in $(patsubst cmd/%,%,$(wildcard cmd/*)); do \
-		${GO_OPTS} go build -mod=vendor -o bin/$$cmd cmd/$$cmd/main.go; \
+		${GO_OPTS} go build -o bin/$$cmd cmd/$$cmd/main.go; \
 	done
 
 .PHONY: clean tools
