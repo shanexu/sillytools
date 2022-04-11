@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/shanexu/sillytools/common"
 	"net/url"
 	"os"
 	"os/exec"
@@ -11,6 +10,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/shanexu/sillytools/common"
 )
 
 var (
@@ -180,7 +181,7 @@ func main() {
 	if idx > 0 {
 		parent = u.Path[0:idx]
 	}
-	parents := append([]string{src, u.Host}, strings.Split(parent, "/")...)
+	parents := append([]string{src, simpleHost(u.Host)}, strings.Split(parent, "/")...)
 	path := filepath.Join(parents...)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		err = os.MkdirAll(path, 0755)
@@ -201,4 +202,12 @@ func main() {
 	if err := cmd.Run(); err != nil {
 		panic(err)
 	}
+}
+
+func simpleHost(host string) string {
+	idx := strings.Index(host, ":")
+	if idx != -1 {
+		host = host[0:idx]
+	}
+	return host
 }

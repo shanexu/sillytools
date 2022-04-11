@@ -267,6 +267,8 @@ proxies:
 proxy-groups:
 {{PROXY-GROUPS}}
 rules:
+  - 'DOMAIN-SUFFIX,idbhost.com,DIRECT'
+
   - 'DOMAIN,gfwairport.icu,DIRECT'
   - 'DOMAIN-SUFFIX,services.googleapis.cn,翻墙机场'
   - 'DOMAIN-SUFFIX,xn--ngstr-lra8j.com,翻墙机场'
