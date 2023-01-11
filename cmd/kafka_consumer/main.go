@@ -2,19 +2,38 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"github.com/segmentio/kafka-go"
 	"log"
+	"strings"
 	"time"
 )
 
+type stringsFlags []string
+
+func (i *stringsFlags) String() string {
+	return strings.Join(*i, ",")
+}
+
+func (i *stringsFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
 func main() {
-	fmt.Println("hello world")
+	var brokers stringsFlags
+	var groupID string
+	var topic string
+	flag.Var(&brokers, "brokers", "--brokers 172.16.130.218:9092 --brokers 172.16.128.192:9092 --brokers 172.16.130.193:9092")
+	flag.StringVar(&groupID, "group", "sillytools_kafka_consumer", "--group xxxx")
+	flag.StringVar(&topic, "topic", "", "--topic xxxtopic")
+	flag.Parse()
 	// make a new reader that consumes from topic-A, partition 0, at offset 42
 	r := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  []string{"172.16.130.218:9092", "172.16.128.192:9092", "172.16.130.193:9092"},
-		GroupID:  "sillytools_kafka_consumer",
-		Topic:    "ads.fi.bond.inc.5100.mergebroker",
+		Brokers:  brokers,
+		GroupID:  groupID,
+		Topic:    topic,
 		MinBytes: 10e3, // 10KB
 		MaxBytes: 10e6, // 10MB
 	})
