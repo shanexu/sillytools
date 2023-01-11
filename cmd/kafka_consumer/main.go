@@ -25,7 +25,7 @@ func main() {
 	var brokers stringsFlags
 	var groupID string
 	var topic string
-	flag.Var(&brokers, "brokers", "--brokers 172.16.130.218:9092 --brokers 172.16.128.192:9092 --brokers 172.16.130.193:9092")
+	flag.Var(&brokers, "brokers", "--brokers 127.0.0.1:9092")
 	flag.StringVar(&groupID, "group", "sillytools_kafka_consumer", "--group xxxx")
 	flag.StringVar(&topic, "topic", "", "--topic xxxtopic")
 	flag.Parse()
